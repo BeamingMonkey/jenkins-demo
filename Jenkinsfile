@@ -1,20 +1,39 @@
 pipeline {
     agent any
 
+    environment {
+        MINIKUBE_PROFILE = "minikube"
+        IMAGE_NAME = "jenkins-demo:latest"
+    }
+
     stages {
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building the app...'
+                script {
+                    echo "Building Docker image inside Minikube Docker daemon"
+                    sh '''
+                    eval $(minikube -p $MINIKUBE_PROFILE docker-env)
+                    docker build -t $IMAGE_NAME .
+                    '''
+                }
             }
         }
-        stage('Test') {
+
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Running tests...'
+                script {
+                    echo "Deploying app to Minikube Kubernetes cluster"
+                    sh 'kubectl apply -f k8s-deployment.yaml'
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('Verify Deployment') {
             steps {
-                echo 'Deploying app...'
+                script {
+                    echo "Checking pods status"
+                    sh 'kubectl get pods -l app=jenkins-demo'
+                }
             }
         }
     }

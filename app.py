@@ -1,1 +1,2 @@
-print("Hello from Jenkins CI/CD pipeline!")
+# Just a placeholder, HTTP server serves current directory
+print("Hello from Jenkins + Minikube deployment!")
